@@ -1,11 +1,17 @@
 # sentient - browser controlling agents in 3 lines of code
 
+```python
+from sentient import sentient
+import asyncio
+result = asyncio.run(sentient.invoke("play shape of you on youtube"))
+```
+
 ### setup
 
 1. install sentient `pip install sentient`
 
 
-2. start chrome in dev mode - in a seaparate terminal, use the command to start a chrome instance and do necesssary logins if needed
+2. currently, you need to start chrome in dev mode - in a seaparate terminal on the port 9222. use the below commands to start the chrome instance and do necesssary logins if needed
 
 for mac, use command -
 

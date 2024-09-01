@@ -5,7 +5,7 @@ from typing import Dict, List
 
 from colorama import Fore, init
 from dotenv import load_dotenv
-from langsmith import traceable
+# from langsmith import traceable
 
 from sentient.core.agent.base import BaseAgent
 from sentient.core.models.models import (

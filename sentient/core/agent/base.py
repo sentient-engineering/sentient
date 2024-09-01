@@ -3,7 +3,7 @@ from typing import Callable, List, Optional, Tuple, Type
 
 import litellm
 import openai
-from langsmith import traceable
+# from langsmith import traceable
 # from litellm import Router
 
 from pydantic import BaseModel
