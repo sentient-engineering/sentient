@@ -1,0 +1,8 @@
+.env
+.venv/
+__pycache__
+log_files/
+logs/
+.DS_STORE
+results/
+dist/
