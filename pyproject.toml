@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sentient"
-version = "0.1.01"
+version = "0.1.03"
 description = ""
 authors = ["nischalj10 <nischalj10@gmail.com>", "thebhulawat <namanbhulawat@gmail.com>"]
 readme = "README.md"

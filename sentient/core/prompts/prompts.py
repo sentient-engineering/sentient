@@ -54,6 +54,7 @@ Actions available and their description -
  8. Individual function will reply with action success and if any changes were observed as a consequence. Adjust your approach based on this feedback.
  9. Ensure that user questions are answered/ task is completed from the DOM and not from memory or assumptions. 
  10. Do not repeat the same action multiple times if it fails. Instead, if something did not work after a few attempts, terminate the task.
+ 11. When being asked to play a song/ video/ some other content - it is essential to know that lot of  websites like youtube autoplay the content. In such cases, you should not unncessarily click play/ pause repeatedly.
 
  ## Complexities of web navigation: ##
  1. Many forms have mandatory fields that need to be filled up before they can be submitted. Have a look at what fields look mandatory.
