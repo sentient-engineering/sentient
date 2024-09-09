@@ -1,5 +1,5 @@
 # sentient - browser controlling agents in 3 lines of code
-
+[beta]
 ```python
 from sentient import sentient
 import asyncio
