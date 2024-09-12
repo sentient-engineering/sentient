@@ -14,6 +14,7 @@ class ActionType(str, Enum):
     CLICK = "CLICK"
     TYPE = "TYPE"
     GOTO_URL = "GOTO_URL"
+    ENTER_TEXT_AND_CLICK = "ENTER_TEXT_AND_CLICK"
 
 
 class ClickAction(BaseModel):
@@ -52,12 +53,28 @@ class GotoAction(BaseModel):
         description="Additional wait time in seconds after initial load."
     )
 
-
+class EnterTextAndClickAction(BaseModel):
+    type: Literal[ActionType.ENTER_TEXT_AND_CLICK] = Field(
+        description="""Enters text into a specified element and clicks another element, both identified by their mmid. Ideal for seamless actions like submitting search queries, this integrated approach ensures superior performance over separate text entry and click commands. Successfully completes when both actions are executed without errors, returning True; otherwise, it provides False or an explanatory message of any failure encountered."""
+    )
+    text_element_mmid: int = Field(
+        description="The mmid number of the element where the text will be entered"
+    )
+    text_to_enter: str = Field(
+        description="The text that will be entered into the element specified by text_element_mmid"
+    )
+    click_element_mmid: int = Field(
+        description="The mmid number of the element that will be clicked after text entry."
+    )
+    wait_before_click_execution: Optional[float] = Field(
+        description="Optional wait time in seconds before executing the click event logic"
+    )
 
 Action = Union[
     ClickAction,
     TypeAction,
     GotoAction,
+    EnterTextAndClickAction,
 ]
 
 

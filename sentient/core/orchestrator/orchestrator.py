@@ -5,7 +5,7 @@ from typing import Dict, List
 
 from colorama import Fore, init
 from dotenv import load_dotenv
-# from langsmith import traceable
+from langsmith import traceable
 
 from sentient.core.agent.base import BaseAgent
 from sentient.core.models.models import (
@@ -22,6 +22,7 @@ from sentient.core.skills.enter_text_using_selector import EnterTextEntry, enter
 from sentient.core.skills.get_dom_with_content_type import get_dom_with_content_type
 from sentient.core.skills.get_url import geturl
 from sentient.core.skills.open_url import openurl
+from sentient.core.skills.enter_text_and_click import enter_text_and_click
 from sentient.core.web_driver.playwright import PlaywrightManager
 
 init(autoreset=True)
@@ -29,7 +30,7 @@ init(autoreset=True)
 
 class Orchestrator:
     def __init__(
-        self, state_to_agent_map: Dict[State, BaseAgent], eval_mode: bool = False
+        self, state_to_agent_map: Dict[State, BaseAgent], eval_mode: bool = False, model:str = None
     ):
         load_dotenv()
         self.state_to_agent_map = state_to_agent_map
@@ -37,6 +38,7 @@ class Orchestrator:
         self.eval_mode = eval_mode
         self.shutdown_event = asyncio.Event()
         self.session_id = str(uuid.uuid4())
+        self.model = model
 
     async def start(self):
         print("Starting orchestrator")
@@ -71,7 +73,7 @@ class Orchestrator:
             None, input, "Enter your command (or type 'exit' to quit) "
         )
 
-    #@traceable(run_type="chain", name="execute_command")
+    @traceable(run_type="chain", name="execute_command")
     async def execute_command(self, command: str):
         try:
             # Create initial memory
@@ -110,12 +112,12 @@ class Orchestrator:
             raise ValueError(f"Unhandled state! No agent for {current_state}")
         
         if current_state == State.BASE_AGENT:
-            await self._handle_agnetq_base()
+            await self._handle_agnet()
         else:
             raise ValueError(f"Unhandled state: {current_state}")
 
 
-    async def _handle_agnetq_base(self):
+    async def _handle_agnet(self):
         agent = self.state_to_agent_map[State.BASE_AGENT]
         self._print_memory_and_agent(agent.name)
 
@@ -131,7 +133,7 @@ class Orchestrator:
         )
 
         output: AgentOutput = await agent.run(
-            input_data, session_id=self.session_id
+            input_data, session_id=self.session_id, model=self.model
         )
 
         await self._update_memory_from_agent(output)
@@ -170,7 +172,7 @@ class Orchestrator:
         results = []
         for action in actions:
             if action.type == ActionType.GOTO_URL:
-                result = await openurl(url=action.website, timeout=action.timeout or 0)
+                result = await openurl(url=action.website, timeout=action.timeout or 1)
                 print("Action - GOTO")
             elif action.type == ActionType.TYPE:
                 entry = EnterTextEntry(
@@ -181,9 +183,18 @@ class Orchestrator:
             elif action.type == ActionType.CLICK:
                 result = await click(
                     selector=f"[mmid='{action.mmid}']",
-                    wait_before_execution=action.wait_before_execution or 0,
+                    wait_before_execution=action.wait_before_execution or 1,
                 )
                 print("Action - CLICK")
+            elif action.type == ActionType.ENTER_TEXT_AND_CLICK:
+                result = await enter_text_and_click(
+                    text_selector=f"[mmid='{action.text_element_mmid}']",
+                    text_to_enter=action.text_to_enter,
+                    click_selector=f"[mmid='{action.click_element_mmid}']",
+                    wait_before_click_execution=action.wait_before_click_execution
+                    or 1.5,
+                )
+                print("Action - ENTER TEXT AND CLICK")
             else:
                 result = f"Unsupported action type: {action.type}"
 

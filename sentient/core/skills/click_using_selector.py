@@ -12,7 +12,7 @@ from sentient.utils.dom_mutation_observer import (
     unsubscribe,  # type: ignore
 )
 from sentient.utils.logger import logger
-
+from playwright.async_api import TimeoutError as PlaywrightTimeoutError
 
 async def click(
     selector: Annotated[
@@ -42,10 +42,10 @@ async def click(
     browser_manager = PlaywrightManager(browser_type="chromium", headless=False)
     page = await browser_manager.get_current_page()
 
-    if page is None:  # type: ignore
+    if page is None:
         raise ValueError("No active page found. OpenURL command opens a new page.")
 
-    function_name = inspect.currentframe().f_code.co_name  # type: ignore
+    function_name = inspect.currentframe().f_code.co_name
 
     await browser_manager.take_screenshots(f"{function_name}_start", page)
 
@@ -53,37 +53,41 @@ async def click(
 
     dom_changes_detected = None
 
-    def detect_dom_changes(changes: str):  # type: ignore
+    def detect_dom_changes(changes: str):
         nonlocal dom_changes_detected
-        dom_changes_detected = changes  # type: ignore
+        dom_changes_detected = changes
 
     subscribe(detect_dom_changes)
 
     # Wrap the click action and subsequent operations in a try-except block
     try:
-        # Set up navigation expectation
+        # Set up navigation expectation with a shorter timeout
         async with page.expect_navigation(wait_until="domcontentloaded", timeout=10000):
             result = await do_click(page, selector, wait_before_execution)
 
         # Wait for a short time to ensure the page has settled
         await asyncio.sleep(1)
-    except Exception as e:
-        logger.error(f"Navigation error after click: {e}")
+    except PlaywrightTimeoutError:
+        # If navigation times out, it might be a single-page app or a slow-loading page
+        logger.warning("Navigation timeout occurred, but the click might have been successful.")
         result = {
-            "summary_message": "Click executed, but encountered an error during navigation",
-            "detailed_message": f"Click executed, but encountered an error during navigation: {str(e)}",
+            "summary_message": "Click executed, but no full page navigation detected",
+            "detailed_message": "Click executed successfully, but no full page navigation was detected. This might be normal for single-page applications or slow-loading pages.",
+        }
+    except Exception as e:
+        logger.error(f"Error during click operation: {e}")
+        result = {
+            "summary_message": "Click executed, but encountered an error",
+            "detailed_message": f"Click executed, but encountered an error: {str(e)}",
         }
 
-    await asyncio.sleep(
-        0.1
-    )  # sleep for 100ms to allow the mutation observer to detect changes
+    await asyncio.sleep(0.1)  # sleep for 100ms to allow the mutation observer to detect changes
     unsubscribe(detect_dom_changes)
     await browser_manager.take_screenshots(f"{function_name}_end", page)
 
     if dom_changes_detected:
         return f"Success: {result['summary_message']}.\n As a consequence of this action, new elements have appeared in view: {dom_changes_detected}. This means that the action to click {selector} is not yet executed and needs further interaction. Get all_fields DOM to complete the interaction."
     return result["detailed_message"]
-
 
 async def do_click(
     page: Page, selector: str, wait_before_execution: float

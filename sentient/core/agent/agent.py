@@ -8,7 +8,7 @@ from sentient.core.prompts.prompts import LLM_PROMPTS
 
 
 class Agent(BaseAgent):
-    def __init__(self):
+    def __init__(self, provider:str):
         self.name = "sentient"
         self.ltm = None
         self.ltm = self.__get_ltm()
@@ -19,17 +19,18 @@ class Agent(BaseAgent):
             input_format=AgentInput,
             output_format=AgentOutput,
             keep_message_history=False,
+            provider=provider,
         )
 
     @staticmethod
     def __get_ltm():
-        return ltm.get_user_ltm()
+        return ltm.get_task_instructions()
 
     def __modify_system_prompt(self, ltm):
         system_prompt: str = LLM_PROMPTS["BASE_AGENT_PROMPT"]
 
         substitutions = {
-            "basic_user_information": ltm if ltm is not None else "",
+            "task_information": ltm if ltm is not None else "",
         }
 
         # Use safe_substitute to avoid KeyError
