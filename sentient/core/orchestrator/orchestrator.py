@@ -90,11 +90,7 @@ class Orchestrator:
             while self.memory.current_state != State.COMPLETED:
                 await self._handle_state()
             self._print_final_response()
-
-            if self.eval_mode:
-                return self.memory.final_response
-            else:
-                return
+            return self.memory.final_response
         except Exception as e:
             print(f"Error executing the command {self.memory.objective}: {e}")
 
