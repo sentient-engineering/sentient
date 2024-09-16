@@ -56,7 +56,7 @@ class BaseAgent:
     def _initialize_messages(self):
         self.messages = [{"role": "system", "content": self.system_prompt}]
 
-    @traceable(run_type="chain", name="agent_run")
+    # @traceable(run_type="chain", name="agent_run")
     async def run(
         self, input_data: BaseModel, screenshot: str = None, model:str= None, session_id: str = None
     ) -> BaseModel:

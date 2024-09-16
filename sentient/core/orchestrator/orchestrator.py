@@ -73,7 +73,7 @@ class Orchestrator:
             None, input, "Enter your command (or type 'exit' to quit) "
         )
 
-    @traceable(run_type="chain", name="execute_command")
+    # @traceable(run_type="chain", name="execute_command")
     async def execute_command(self, command: str):
         try:
             # Create initial memory
