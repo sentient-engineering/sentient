@@ -20,6 +20,11 @@ for mac, use command -
 sudo /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222
 ```
 
+to run Brave
+```bash
+sudo /Applications/Brave\ Browser.app/Contents/MacOS/Brave\ Browser --remote-debugging-port=9222 --guest
+```
+
 for linux -
 
 ```bash
@@ -39,6 +44,11 @@ for windows -
 ```python
 from sentient import sentient
 import asyncio
+
+# if you wanna run in Jupyter Notebook
+# add these 2 follwing lines
+import nest_asyncio
+nest_asyncio.apply()
 
 result = asyncio.run(sentient.invoke("play shape of you on youtube"))
 ```
