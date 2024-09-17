@@ -29,6 +29,13 @@ class OllamaProvider(LLMProvider):
             "base_url": "http://localhost:11434/v1/",
         }
 
+class OpenRouterProvider(LLMProvider):
+    def get_client_config(self) -> Dict[str, str]:
+        return {
+            "api_key": os.environ.get("OPENROUTER_API_KEY"),
+            "base_url": "https://openrouter.ai/api/v1",
+        }
+
 # class AnyscaleProvider(LLMProvider):
 #     def get_client_config(self) -> Dict[str, Any]:
 #         return {
@@ -40,6 +47,7 @@ PROVIDER_MAP = {
     "openai": OpenAIProvider(),
     "together": TogetherAIProvider(),
     "ollama": OllamaProvider(),
+    "openrouter": OpenRouterProvider(),
     # "anyscale": AnyscaleProvider(),
 }
 
