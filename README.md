@@ -1,4 +1,4 @@
-# Sentient - Browser Controlling Agents in 3 Lines of Code
+# sentient - Browser Controlling Agents in 3 Lines of Code
 
 [Beta]
 
