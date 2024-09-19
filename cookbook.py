@@ -26,13 +26,6 @@ result = asyncio.run(sentient.invoke(
     provider="ollama",
     model="llama3"))
 
-# use with groq models 
-result = asyncio.run(sentient.invoke(
-    goal="play shape of you on youtube", 
-    task_instructions=custom_instructions, 
-    provider="groq",
-    model="llama-3.1-70b-versatile"))
-
 #using anthropic
 result = asyncio.run(sentient.invoke(
     goal="play shape of you on youtube", 
@@ -40,7 +33,15 @@ result = asyncio.run(sentient.invoke(
     provider="anthropic",
     model="claude-3-5-sonnet-20240620"))
 
-#using a custom endpoint (like remotely hosted vLLM/ ollama servers)
+# use with groq models 
+result = asyncio.run(sentient.invoke(
+    goal="play shape of you on youtube", 
+    task_instructions=custom_instructions, 
+    provider="groq",
+    model="llama-3.1-70b-versatile"))
+
+#using a custom endpoint (like remotely hosted vLLM/ ollama servers) 
+#endpoint must be openai compatible
 result = asyncio.run(sentient.invoke(
     goal="play shape of you on youtube", 
     task_instructions=custom_instructions,
