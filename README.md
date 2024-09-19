@@ -62,7 +62,7 @@ result = asyncio.run(sentient.invoke(goal="play shape of you on youtube"))
 
    Note: If running in a Jupyter notebook, you need to uncomment and use the `nest_asyncio` lines as shown above.
 
-5. Note: By default, we use `gpt-4-0824` from `openai` to run sentient as it is the best performing model. You can also use other models like `gpt4` or `gpt4-32k`, but reliability may be affected.
+5. Note: By default, we use `gpt-4o-2024-08-06` from `openai` to run sentient as it is the best performing model. You can also use other models like `gpt4o` or `gpt4o-mini`, but reliability may be affected.
 
 ## Setting Custom Task-Specific Instructions
 
@@ -81,7 +81,7 @@ result = asyncio.run(sentient.invoke(
     goal="play shape of you on youtube",
     task_instructions=custom_instructions,
     provider="openai",
-    model="gpt-4-0824"))
+    model="gpt-4o-2024-08-06"))
 ```
 
 ## Using Providers Other Than OpenAI
