@@ -7,6 +7,9 @@ import openai
 from instructor import Mode
 from langsmith import traceable
 from pydantic import BaseModel
+import google.generativeai as genai
+from groq import Groq
+from anthropic import Anthropic
 
 from sentient.utils.function_utils import get_function_schema
 from sentient.utils.logger import logger
@@ -21,7 +24,8 @@ class BaseAgent:
         output_format: Type[BaseModel],
         tools: Optional[List[Tuple[Callable, str]]] = None,
         keep_message_history: bool = True,
-        provider: str = "openai",
+        provider: LLMProvider = None,
+        model_name: str = None,
     ):
         # Metdata
         self.agent_name = name
@@ -37,10 +41,27 @@ class BaseAgent:
         self.output_format = output_format
 
         # Llm client
-        self.provider: LLMProvider = get_provider(provider)
+        self.provider_name = provider.get_provider_name()
+        self.provider = provider
         client_config = self.provider.get_client_config()
-        self.client = openai.Client(**client_config)
-        self.client = instructor.from_openai(self.client, mode=Mode.JSON)
+
+        # if self.provider_name == "google":
+        #     self.client = instructor.from_gemini(
+        #         client=genai.GenerativeModel(
+        #             model_name=model_name, 
+        #         )
+        #     )
+        if self.provider_name == "groq":
+            self.client = Groq(**client_config)
+            self.client = instructor.from_groq(self.client, mode=Mode.TOOLS)
+        if self.provider_name == "anthropic":
+            self.client = instructor.from_anthropic(Anthropic())
+        else:
+            self.client = openai.Client(**client_config)
+            self.client = instructor.from_openai(self.client, mode=Mode.JSON)
+        
+        # Set model name
+        self.model_name = model_name
 
         # Tools
         self.tools_list = []
@@ -58,7 +79,7 @@ class BaseAgent:
 
     # @traceable(run_type="chain", name="agent_run")
     async def run(
-        self, input_data: BaseModel, screenshot: str = None, model:str= None, session_id: str = None
+        self, input_data: BaseModel, screenshot: str = None
     ) -> BaseModel:
         if not isinstance(input_data, self.input_format):
             raise ValueError(f"Input data must be of type {self.input_format.__name__}")
@@ -92,6 +113,13 @@ class BaseAgent:
                 }
             )
 
+        self.messages.append(
+                {
+                    "role": "assistant",
+                    "content": f"Understood. I will properly follow the instructions given. Can you provide me with the current page DOM and URL please?",
+                }
+            )
+        
         # input dom and current page url in a separate message so that the LLM can pay attention to completed tasks better. *based on personal vibe check*
         if hasattr(input_data, "current_page_dom") and hasattr(
             input_data, "current_page_url"
@@ -111,14 +139,15 @@ class BaseAgent:
             try:
                 if len(self.tools_list) == 0:
                     response = self.client.chat.completions.create(
-                        model=model,
+                        model=self.model_name,
                         messages=self.messages,
                         response_model=self.output_format,
                         max_retries=3,
+                        max_tokens=1000 if self.provider_name == "anthropic" else None,
                     )
                 else:
                     response = self.client.chat.completions.create(
-                        model=model,
+                        model=self.model_name,
                         messages=self.messages,
                         response_model=self.output_format,
                         tool_choice="auto",

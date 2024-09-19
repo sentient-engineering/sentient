@@ -81,25 +81,25 @@ Action = Union[
 class Task(BaseModel):
     id: int
     description: str
-    url: Optional[str]
-    result: Optional[str]
+    url: Optional[str] = Field(default=None, description="Optional URL of the page on which task will happen")
+    result: Optional[str] = Field(default=None, description="Optional result of the task")
 
 
 class TaskWithActions(BaseModel):
     id: int
     description: str
-    actions_to_be_performed: Optional[List[Action]]
-    result: Optional[str]
+    actions_to_be_performed: Optional[List[Action]] = Field(default=None)
+    result: Optional[str] = Field(default=None)
 
 
 class Memory(BaseModel):
     objective: str
     current_state: State
-    plan: Optional[Union[List[Task], List[TaskWithActions]]]
+    plan: Optional[Union[List[Task], List[TaskWithActions]]] = Field(default=None)
     thought: str
-    completed_tasks: Optional[Union[List[Task], List[TaskWithActions]]]
-    current_task: Optional[Union[Task, TaskWithActions]]
-    final_response: Optional[str]
+    completed_tasks: Optional[Union[List[Task], List[TaskWithActions]]] = Field(default=None)
+    current_task: Optional[Union[Task, TaskWithActions]] = Field(default=None)
+    final_response: Optional[str] = Field(default=None)
 
     class Config:
         use_enum_values = True
@@ -109,15 +109,64 @@ class Memory(BaseModel):
 # Agent
 class AgentInput(BaseModel):
     objective: str
-    completed_tasks: Optional[List[Task]]
+    completed_tasks: Optional[List[Task]] = Field(default=None)
     current_page_url: str
     current_page_dom: str
-
 
 class AgentOutput(BaseModel):
     thought: str
     plan: List[Task]
-    next_task: Optional[Task]
-    next_task_actions: Optional[List[Action]]
+    next_task: Optional[Task] = Field(default=None, description="The next task to be executed")
+    next_task_actions: Optional[List[Action]] = Field(default=None, description="List of actions for the next task")
     is_complete: bool
-    final_response: Optional[str]
+    final_response: Optional[str] = Field(default=None, description="Final response of the agent")
+
+    class Config:
+        json_schema_extra = {
+            "properties": {
+                "thought": {"type": "string"},
+                "plan": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "id": {"type": "integer"},
+                            "description": {"type": "string"},
+                            "url": {"type": "string"},
+                            "result": {"type": "string"}
+                        },
+                        "required": ["id", "description"]
+                    }
+                },
+                "next_task": {
+                    "type": "object",
+                    "properties": {
+                        "id": {"type": "integer"},
+                        "description": {"type": "string"},
+                        "url": {"type": "string"},
+                        "result": {"type": "string"}
+                    },
+                    "required": ["id", "description"]
+                },
+                "next_task_actions": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "type": {"type": "string"},
+                            "mmid": {"type": "integer"},
+                            "content": {"type": "string"},
+                            "website": {"type": "string"},
+                            "timeout": {"type": "number"},
+                            "text_element_mmid": {"type": "integer"},
+                            "text_to_enter": {"type": "string"},
+                            "click_element_mmid": {"type": "integer"},
+                            "wait_before_click_execution": {"type": "number"}
+                        },
+                        "required": ["type"]
+                    }
+                },
+                "is_complete": {"type": "boolean"},
+                "final_response": {"type": "string"}
+            }
+        }
