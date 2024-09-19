@@ -1,6 +1,6 @@
-# sentient - browser controlling agents in 3 lines of code
+# sentient - Browser Controlling Agents in 3 Lines of Code
 
-[beta]
+[Beta]
 
 ```python
 from sentient import sentient
@@ -8,69 +8,75 @@ import asyncio
 result = asyncio.run(sentient.invoke(goal="play shape of you on youtube"))
 ```
 
-### setup
+## Setup
 
-1. install sentient `pip install sentient`
+1. Install sentient:
+   ```
+   pip install sentient
+   ```
 
-2. currently, you need to start chrome in dev mode - in a seaparate terminal on the port 9222. use the below commands to start the chrome instance and do necesssary logins if needed
+2. Start Chrome in dev mode on port 9222 in a separate terminal. Use the appropriate command for your operating system:
 
-for mac, use command -
+   MacOS (Chrome):
+   ```bash
+   /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222 --guest
+   ```
 
-```bash
-sudo /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222
-```
+   MacOS (Chromium):
+   ```bash
+   /Applications/Chromium.app/Contents/MacOS/Chromium --remote-debugging-port=9222 --guest
+   ```
 
-to run brave browser (mac) -
+   MacOS (Brave):
+   ```bash
+   sudo /Applications/Brave\ Browser.app/Contents/MacOS/Brave\ Browser --remote-debugging-port=9222 --guest
+   ```
 
-```bash
-sudo /Applications/Brave\ Browser.app/Contents/MacOS/Brave\ Browser --remote-debugging-port=9222 --guest
-```
+   Linux:
+   ```bash
+   google-chrome --remote-debugging-port=9222
+   ```
 
-for linux -
+   Windows:
+   ```bash
+   "C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222
+   ```
 
-```bash
-google-chrome --remote-debugging-port=9222
-```
+3. Set up OpenAI API key:
+   Create a `.env` file or use:
+   ```
+   export OPENAI_API_KEY="sk-proj-"
+   ```
 
-for windows -
+4. Run the agent:
+   ```python
+   from sentient import sentient
+   import asyncio
 
-```bash
-"C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222
-```
+   # If you want to run in a Jupyter notebook, uncomment the following two lines:
+   # import nest_asyncio
+   # nest_asyncio.apply()
 
-4. setup open ai api key in a .env file or `export OPENAI_API_KEY="sk-proj-"`
+   result = asyncio.run(sentient.invoke("play shape of you on youtube"))
+   ```
 
-5. run the agent
+   Note: If running in a Jupyter notebook, you need to uncomment and use the `nest_asyncio` lines as shown above.
+
+5. Note: By default, we use `gpt-4o-2024-08-06` from `openai` to run sentient as it is the best performing model. You can also use other models like `gpt4o` or `gpt4o-mini`, but reliability may be affected.
+
+## Setting Custom Task-Specific Instructions
+
+You can customize the agent's behavior by providing natural language instructions:
 
 ```python
 from sentient import sentient
 import asyncio
 
-# if you wanna run in a jupyter notebook, uncomment the following two lines :
-#import nest_asyncio
-#nest_asyncio.apply()
-
-result = asyncio.run(sentient.invoke("play shape of you on youtube"))
-```
-
-6. note - by default we use `gpt-4o-2024-08-06` from `openai` to run sentient as it is the best performing model. you can also use other models like `gpt4o` or `gpt4o-mini` but the reliabilty may take some hit.
-
----
-
-### setting custom task specific instructions
-
-you can customise the agent's behaviour by providing natural language descripition of how it should naviagate or what all things it should keep in mind while executing a particualr task.
-this is helpful in improving the accuracy and reliability of the agent on your specific task.
-
-```
-from sentient import sentient
-import asyncio
-
 custom_instructions = """
-1. Directly go to youtube.com rather than searching for the song on google!
+1. Directly go to youtube.com rather than searching for the song on Google!
 """
 
-#use with open ai
+# Use with OpenAI
 result = asyncio.run(sentient.invoke(
     goal="play shape of you on youtube",
     task_instructions=custom_instructions,
@@ -78,32 +84,32 @@ result = asyncio.run(sentient.invoke(
     model="gpt-4o-2024-08-06"))
 ```
 
----
+## Using Providers Other Than OpenAI
 
-### using providers other than open ai
+We currently support Together AI and Ollama as providers. If you wish to have others included, please create a new issue.
 
-we currently support togehter ai and ollama as providers. if you wish to have others included, please create a new issue. you can pass custom instructions in a similar fashion as shown above. you can also refer the [cookbook](cookbook.py) for seeing all examples of using sentient with various providers.
+For more examples of using Sentient with various providers, refer to the [cookbook](cookbook.py).
 
-#### using together ai hosted models
+### Using Together AI Hosted Models
 
-1. set API key for Together AI - `export TOGETHER_API_KEY="your-api-key"`
+1. Set API key for Together AI:
+   ```
+   export TOGETHER_API_KEY="your-api-key"
+   ```
 
-2. pass provider and model options to the invoke command.
+2. Pass provider and model options to the invoke command:
+   ```python
+   result = asyncio.run(sentient.invoke(
+       goal="play shape of you on youtube",
+       provider="together",
+       model="meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo"))
+   ```
 
-```
-#use with together ai
-result = asyncio.run(sentient.invoke(
-    goal="play shape of you on youtube",
-    provider="together",
-    model="meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo"))
-```
+### Using Ollama
 
-#### using ollama
+Ensure the Ollama server is on. You just need to pass the name of the model:
 
-1. ensure the ollama server is on. you just need to pass the name of the model.
-
-```
-#use with ollama
+```python
 result = asyncio.run(sentient.invoke(
     goal="play shape of you on youtube",
     provider="ollama",
