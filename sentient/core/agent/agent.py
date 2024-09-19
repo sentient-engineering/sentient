@@ -5,10 +5,11 @@ from sentient.core.agent.base import BaseAgent
 from sentient.core.memory import ltm
 from sentient.core.models.models import AgentInput, AgentOutput
 from sentient.core.prompts.prompts import LLM_PROMPTS
+from sentient.utils.providers import LLMProvider
 
 
 class Agent(BaseAgent):
-    def __init__(self, provider:str):
+    def __init__(self, provider:LLMProvider, model_name: str):
         self.name = "sentient"
         self.ltm = None
         self.ltm = self.__get_ltm()
@@ -20,6 +21,7 @@ class Agent(BaseAgent):
             output_format=AgentOutput,
             keep_message_history=False,
             provider=provider,
+            model_name=model_name,
         )
 
     @staticmethod

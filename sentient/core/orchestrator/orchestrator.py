@@ -30,15 +30,14 @@ init(autoreset=True)
 
 class Orchestrator:
     def __init__(
-        self, state_to_agent_map: Dict[State, BaseAgent], eval_mode: bool = False, model:str = None
+        self, state_to_agent_map: Dict[State, BaseAgent], eval_mode: bool = False
     ):
         load_dotenv()
         self.state_to_agent_map = state_to_agent_map
         self.playwright_manager = PlaywrightManager()
         self.eval_mode = eval_mode
         self.shutdown_event = asyncio.Event()
-        self.session_id = str(uuid.uuid4())
-        self.model = model
+        # self.session_id = str(uuid.uuid4())
 
     async def start(self):
         print("Starting orchestrator")
@@ -129,7 +128,7 @@ class Orchestrator:
         )
 
         output: AgentOutput = await agent.run(
-            input_data, session_id=self.session_id, model=self.model
+            input_data
         )
 
         await self._update_memory_from_agent(output)
