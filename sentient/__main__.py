@@ -8,7 +8,7 @@ from sentient.core.orchestrator.orchestrator import Orchestrator
 async def main():
     # Define state machine
     state_to_agent_map = {
-        State.BASE_AGENT: Agent(),
+        State.BASE_AGENT: Agent(max_retries=3),
     }
 
     orchestrator = Orchestrator(state_to_agent_map=state_to_agent_map)

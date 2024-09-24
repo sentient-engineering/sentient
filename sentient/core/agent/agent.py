@@ -9,7 +9,7 @@ from sentient.utils.providers import LLMProvider
 
 
 class Agent(BaseAgent):
-    def __init__(self, provider:LLMProvider, model_name: str):
+    def __init__(self, provider: LLMProvider, model_name: str, max_retries: int):
         self.name = "sentient"
         self.ltm = None
         self.ltm = self.__get_ltm()
@@ -22,6 +22,7 @@ class Agent(BaseAgent):
             keep_message_history=False,
             provider=provider,
             model_name=model_name,
+            max_retries=max_retries,
         )
 
     @staticmethod
