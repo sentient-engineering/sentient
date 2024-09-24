@@ -16,6 +16,7 @@ from sentient.utils.logger import logger
 from sentient.utils.providers import get_provider, LLMProvider
 
 class BaseAgent:
+
     def __init__(
         self,
         name: str,
@@ -26,9 +27,11 @@ class BaseAgent:
         keep_message_history: bool = True,
         provider: LLMProvider = None,
         model_name: str = None,
+        max_retries: int = 3
     ):
-        # Metdata
+        # Metadata
         self.agent_name = name
+        self.max_retries = max_retries
 
         # Messages
         self.system_prompt = system_prompt
@@ -131,23 +134,18 @@ class BaseAgent:
                 }
             )
 
-        while True:
-            # TODO:
-            # 1. better exeception handling and messages while calling the client
-            # 2. remove the else block as JSON mode in instrutor won't allow us to pass in tools.
-            # 3. add a max_turn here to prevent a inifinite fallout
+        for attempt in range(self.max_retries):
             try:
                 if len(self.tools_list) == 0:
-                    response = self.client.chat.completions.create(
-                        model=self.model_name,
+                    response = await self.client.chat.completions.create(
+                        model=model,
                         messages=self.messages,
                         response_model=self.output_format,
                         max_retries=3,
-                        max_tokens=1000 if self.provider_name == "anthropic" else None,
                     )
                 else:
-                    response = self.client.chat.completions.create(
-                        model=self.model_name,
+                    response = await self.client.chat.completions.create(
+                        model=model,
                         messages=self.messages,
                         response_model=self.output_format,
                         tool_choice="auto",
@@ -172,13 +170,19 @@ class BaseAgent:
                 assert isinstance(response, self.output_format)
                 return response
             except AssertionError:
+                logger.error(f"Attempt {attempt + 1} failed: Response type mismatch")
+                if attempt == self.max_retries - 1:
                     raise TypeError(
-                        f"Expected response_message to be of type {self.output_format.__name__}, but got {type(response).__name__}")
+                        f"Expected response_message to be of type {self.output_format.__name__}, but got {type(response).__name__}"
+                    )
             except Exception as e:
-                logger.error(f"Unexpected error: {str(e)}")
-                raise
+                logger.error(f"Attempt {attempt + 1} failed: {str(e)}")
+                if attempt == self.max_retries - 1:
+                    raise
 
-            
+        raise RuntimeError(
+            f"Failed to get a valid response after {self.max_retries} attempts"
+        )
 
     async def _append_tool_response(self, tool_call):
         function_name = tool_call.function.name

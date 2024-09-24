@@ -1,10 +1,11 @@
 import asyncio
 import textwrap
 import uuid
-from typing import Dict, List
+from typing import Dict, List, Union
 
 from colorama import Fore, init
 from dotenv import load_dotenv
+from pydantic import ValidationError
 from langsmith import traceable
 
 from sentient.core.agent.base import BaseAgent
@@ -24,20 +25,23 @@ from sentient.core.skills.get_url import geturl
 from sentient.core.skills.open_url import openurl
 from sentient.core.skills.enter_text_and_click import enter_text_and_click
 from sentient.core.web_driver.playwright import PlaywrightManager
+from sentient.utils.logger import logger
 
 init(autoreset=True)
 
 
 class Orchestrator:
     def __init__(
-        self, state_to_agent_map: Dict[State, BaseAgent], eval_mode: bool = False
+        self, state_to_agent_map: Dict[State, BaseAgent], eval_mode: bool = False, model: str = None, max_retries: int = 3
     ):
         load_dotenv()
         self.state_to_agent_map = state_to_agent_map
         self.playwright_manager = PlaywrightManager()
         self.eval_mode = eval_mode
         self.shutdown_event = asyncio.Event()
-        # self.session_id = str(uuid.uuid4())
+        self.session_id = str(uuid.uuid4())
+        self.model = model
+        self.max_retries = max_retries
 
     async def start(self):
         print("Starting orchestrator")
@@ -46,7 +50,7 @@ class Orchestrator:
 
         # if not self.eval_mode:
         #     await self._command_loop()
-    
+
     @classmethod
     async def invoke(cls, command: str):
         orchestrator = cls()
@@ -87,11 +91,22 @@ class Orchestrator:
             )
             print(f"Executing command {self.memory.objective}")
             while self.memory.current_state != State.COMPLETED:
-                await self._handle_state()
+                try:
+                    await self._handle_state()
+                except ValidationError as ve:
+                    logger.error(f"Validation error occurred: {ve}")
+                    if attempt == self.max_retries - 1:
+                        raise
+                    continue
+                except asyncio.TimeoutError:
+                    logger.error("Timeout occurred during state handling")
+                    # Handle timeout, possibly by retrying or moving to the next state
+                    continue
             self._print_final_response()
             return self.memory.final_response
         except Exception as e:
-            print(f"Error executing the command {self.memory.objective}: {e}")
+            logger.error(f"Error executing the command {self.memory.objective}: {e}")
+            raise
 
     def run(self) -> Memory:
         while self.memory.current_state != State.COMPLETED:
@@ -105,14 +120,13 @@ class Orchestrator:
 
         if current_state not in self.state_to_agent_map:
             raise ValueError(f"Unhandled state! No agent for {current_state}")
-        
+
         if current_state == State.BASE_AGENT:
-            await self._handle_agnet()
+            await self._handle_agent()
         else:
             raise ValueError(f"Unhandled state: {current_state}")
 
-
-    async def _handle_agnet(self):
+    async def _handle_agent(self):
         agent = self.state_to_agent_map[State.BASE_AGENT]
         self._print_memory_and_agent(agent.name)
 
@@ -127,14 +141,24 @@ class Orchestrator:
             current_page_dom=str(dom),
         )
 
-        output: AgentOutput = await agent.run(
-            input_data
-        )
-
-        await self._update_memory_from_agent(output)
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                output: AgentOutput = await agent.run(
+                    input_data, session_id=self.session_id, model=self.model
+                )
+                await self._update_memory_from_agent(output)
+                break
+            except ValidationError as ve:
+                logger.error(f"Validation error on attempt {attempt + 1}: {ve}")
+                if attempt == max_retries - 1:
+                    raise
+            except asyncio.TimeoutError:
+                logger.error(f"Timeout on attempt {attempt + 1}")
+                if attempt == max_retries - 1:
+                    raise
 
         print(f"{Fore.MAGENTA}Base Agent Q has updated the memory.")
-
 
     async def _update_memory_from_agent(self, agentq_output: AgentOutput):
         if agentq_output.is_complete:
@@ -166,32 +190,36 @@ class Orchestrator:
     async def handle_agent_actions(self, actions: List[Action]):
         results = []
         for action in actions:
-            if action.type == ActionType.GOTO_URL:
-                result = await openurl(url=action.website, timeout=action.timeout or 1)
-                print("Action - GOTO")
-            elif action.type == ActionType.TYPE:
-                entry = EnterTextEntry(
-                    query_selector=f"[mmid='{action.mmid}']", text=action.content
-                )
-                result = await entertext(entry)
-                print("Action - TYPE")
-            elif action.type == ActionType.CLICK:
-                result = await click(
-                    selector=f"[mmid='{action.mmid}']",
-                    wait_before_execution=action.wait_before_execution or 1,
-                )
-                print("Action - CLICK")
-            elif action.type == ActionType.ENTER_TEXT_AND_CLICK:
-                result = await enter_text_and_click(
-                    text_selector=f"[mmid='{action.text_element_mmid}']",
-                    text_to_enter=action.text_to_enter,
-                    click_selector=f"[mmid='{action.click_element_mmid}']",
-                    wait_before_click_execution=action.wait_before_click_execution
-                    or 1.5,
-                )
-                print("Action - ENTER TEXT AND CLICK")
-            else:
-                result = f"Unsupported action type: {action.type}"
+            try:
+                if action.type == ActionType.GOTO_URL:
+                    result = await openurl(url=action.website, timeout=action.timeout or 1)
+                    print("Action - GOTO")
+                elif action.type == ActionType.TYPE:
+                    entry = EnterTextEntry(
+                        query_selector=f"[mmid='{action.mmid}']", text=action.content
+                    )
+                    result = await entertext(entry)
+                    print("Action - TYPE")
+                elif action.type == ActionType.CLICK:
+                    result = await click(
+                        selector=f"[mmid='{action.mmid}']",
+                        wait_before_execution=action.wait_before_execution or 1,
+                    )
+                    print("Action - CLICK")
+                elif action.type == ActionType.ENTER_TEXT_AND_CLICK:
+                    result = await enter_text_and_click(
+                        text_selector=f"[mmid='{action.text_element_mmid}']",
+                        text_to_enter=action.text_to_enter,
+                        click_selector=f"[mmid='{action.click_element_mmid}']",
+                        wait_before_click_execution=action.wait_before_click_execution
+                        or 1.5,
+                    )
+                    print("Action - ENTER TEXT AND CLICK")
+                else:
+                    result = f"Unsupported action type: {action.type}"
+            except Exception as e:
+                logger.error(f"Error executing action {action.type}: {e}")
+                result = f"Error executing action {action.type}: {str(e)}"
 
             results.append(result)
 

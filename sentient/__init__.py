@@ -7,29 +7,30 @@ from sentient.utils.providers import get_provider
 class Sentient:
     def __init__(self):
         self.orchestrator = None
-    
-    def _create_state_to_agent_map(self, provider: str, model: str, custom_base_url: str = None):
+
+    def _create_state_to_agent_map(self, provider: str, model: str, custom_base_url: str, max_retries: int):
         provider_instance = get_provider(provider, custom_base_url)
         return {
-            State.BASE_AGENT: Agent(provider=provider_instance, model_name=model),
+            State.BASE_AGENT: Agent(provider=provider, model_name=model, max_retries=max_retries),
         }
 
-    async def _initialize(self, provider: str, model: str, custom_base_url: str = None):
+    async def _initialize(self, provider: str, model: str, custom_base_url: str, max_retries: int):
         if not self.orchestrator:
-            state_to_agent_map = self._create_state_to_agent_map(provider, model, custom_base_url)
-            self.orchestrator = Orchestrator(state_to_agent_map=state_to_agent_map)
+            state_to_agent_map = self._create_state_to_agent_map(provider, model, custom_base_url, max_retries)
+            self.orchestrator = Orchestrator(state_to_agent_map=state_to_agent_map, model=model)
             await self.orchestrator.start()
 
     async def invoke(
-            self, 
-            goal: str, provider: str = "openai", 
-            model: str = "gpt-4o-2024-08-06", 
-            task_instructions: str = None, 
-            custom_base_url: str = None
-            ):
+        self, 
+        max_retries: int,
+        goal: str, provider: str = "openai", 
+        model: str = "gpt-4o-2024-08-06", 
+        task_instructions: str = None, 
+        custom_base_url: str = None,
+        ):
         if task_instructions:
             ltm.set_task_instructions(task_instructions)
-        await self._initialize(provider, model, custom_base_url)
+        await self._initialize(provider, model, custom_base_url, max_retries)
         result = await self.orchestrator.execute_command(goal)
         return result
 
