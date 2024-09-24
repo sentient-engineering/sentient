@@ -11,7 +11,7 @@ class Sentient:
     def _create_state_to_agent_map(self, provider: str, model: str, custom_base_url: str, max_retries: int):
         provider_instance = get_provider(provider, custom_base_url)
         return {
-            State.BASE_AGENT: Agent(provider=provider, model_name=model, max_retries=max_retries),
+            State.BASE_AGENT: Agent(provider=provider_instance, model_name=model, max_retries=max_retries),
         }
 
     async def _initialize(self, provider: str, model: str, custom_base_url: str, max_retries: int):
