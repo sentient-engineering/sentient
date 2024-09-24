@@ -51,7 +51,7 @@ class BaseAgent:
         # if self.provider_name == "google":
         #     self.client = instructor.from_gemini(
         #         client=genai.GenerativeModel(
-        #             model_name=model_name, 
+        #             model_name=model_name,
         #         )
         #     )
         if self.provider_name == "groq":
@@ -62,7 +62,7 @@ class BaseAgent:
         else:
             self.client = openai.Client(**client_config)
             self.client = instructor.from_openai(self.client, mode=Mode.JSON)
-        
+
         # Set model name
         self.model_name = model_name
 
@@ -122,7 +122,7 @@ class BaseAgent:
                     "content": f"Understood. I will properly follow the instructions given. Can you provide me with the current page DOM and URL please?",
                 }
             )
-        
+
         # input dom and current page url in a separate message so that the LLM can pay attention to completed tasks better. *based on personal vibe check*
         if hasattr(input_data, "current_page_dom") and hasattr(
             input_data, "current_page_url"
@@ -138,14 +138,14 @@ class BaseAgent:
             try:
                 if len(self.tools_list) == 0:
                     response = await self.client.chat.completions.create(
-                        model=model,
+                        model=self.model_name,
                         messages=self.messages,
                         response_model=self.output_format,
                         max_retries=3,
                     )
                 else:
                     response = await self.client.chat.completions.create(
-                        model=model,
+                        model=self.model_name,
                         messages=self.messages,
                         response_model=self.output_format,
                         tool_choice="auto",
@@ -166,7 +166,7 @@ class BaseAgent:
                 #     continue
 
                 # parsed_response_content: self.output_format = response_message.parsed
-                
+
                 assert isinstance(response, self.output_format)
                 return response
             except AssertionError:
