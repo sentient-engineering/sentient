@@ -193,13 +193,13 @@ class Orchestrator:
                     or 1.5,
                 )
                 print("Action - ENTER TEXT AND CLICK")
-            elif action.type == ActionType.AUTHENTICATE:
+            elif action.type == ActionType.LOGIN:
                 result = await login(
                     api_key=action.api_key,
                     domain=action.domain,
                     user_id="1",
                 )
-                print("Action - AUTHENTICATE")
+                print("Action - LOGIN")
             else:
                 result = f"Unsupported action type: {action.type}"
 

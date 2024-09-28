@@ -15,7 +15,7 @@ class ActionType(str, Enum):
     TYPE = "TYPE"
     GOTO_URL = "GOTO_URL"
     ENTER_TEXT_AND_CLICK = "ENTER_TEXT_AND_CLICK"
-    AUTHENTICATE = "AUTHENTICATE"
+    LOGIN = "LOGIN"
 
 
 class ClickAction(BaseModel):
@@ -71,8 +71,8 @@ class EnterTextAndClickAction(BaseModel):
         description="Optional wait time in seconds before executing the click event logic"
     )
 
-class AuthenticateAction(BaseModel):
-    type: Literal[ActionType.AUTHENTICATE] = Field(
+class LoginAction(BaseModel):
+    type: Literal[ActionType.LOGIN] = Field(
         description="Use this action when you need to log in to a website. The system will handle the authentication process for you."
     )
     domain: str = Field(
@@ -84,7 +84,7 @@ Action = Union[
     TypeAction,
     GotoAction,
     EnterTextAndClickAction,
-    AuthenticateAction,
+    LoginAction,
 ]
 
 
