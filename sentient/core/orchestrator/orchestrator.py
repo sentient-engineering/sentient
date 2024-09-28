@@ -17,6 +17,7 @@ from sentient.core.models.models import (
     State,
     Task,
 )
+from sentient.core.skills.login_with_ravi import login
 from sentient.core.skills.click_using_selector import click
 from sentient.core.skills.enter_text_using_selector import EnterTextEntry, entertext
 from sentient.core.skills.get_dom_with_content_type import get_dom_with_content_type
@@ -24,6 +25,8 @@ from sentient.core.skills.get_url import geturl
 from sentient.core.skills.open_url import openurl
 from sentient.core.skills.enter_text_and_click import enter_text_and_click
 from sentient.core.web_driver.playwright import PlaywrightManager
+
+from sentient.ravi.ravi import Ravi
 
 init(autoreset=True)
 
@@ -190,6 +193,13 @@ class Orchestrator:
                     or 1.5,
                 )
                 print("Action - ENTER TEXT AND CLICK")
+            elif action.type == ActionType.AUTHENTICATE:
+                result = await login(
+                    api_key=action.api_key,
+                    domain=action.domain,
+                    user_id="1",
+                )
+                print("Action - AUTHENTICATE")
             else:
                 result = f"Unsupported action type: {action.type}"
 

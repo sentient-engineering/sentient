@@ -15,6 +15,7 @@ class ActionType(str, Enum):
     TYPE = "TYPE"
     GOTO_URL = "GOTO_URL"
     ENTER_TEXT_AND_CLICK = "ENTER_TEXT_AND_CLICK"
+    AUTHENTICATE = "AUTHENTICATE"
 
 
 class ClickAction(BaseModel):
@@ -70,11 +71,20 @@ class EnterTextAndClickAction(BaseModel):
         description="Optional wait time in seconds before executing the click event logic"
     )
 
+class AuthenticateAction(BaseModel):
+    type: Literal[ActionType.AUTHENTICATE] = Field(
+        description="Use this action when you need to log in to a website. The system will handle the authentication process for you."
+    )
+    domain: str = Field(
+        description="The domain of the website that needs to be authenticated."
+    )
+
 Action = Union[
     ClickAction,
     TypeAction,
     GotoAction,
     EnterTextAndClickAction,
+    AuthenticateAction,
 ]
 
 
@@ -161,7 +171,8 @@ class AgentOutput(BaseModel):
                             "text_element_mmid": {"type": "integer"},
                             "text_to_enter": {"type": "string"},
                             "click_element_mmid": {"type": "integer"},
-                            "wait_before_click_execution": {"type": "number"}
+                            "wait_before_click_execution": {"type": "number"},
+                            "domain": {"type": "string"}
                         },
                         "required": ["type"]
                     }

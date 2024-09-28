@@ -34,6 +34,7 @@ Actions available and their description -
 2. TYPE[MMID, CONTENT] - Single enter given text in the DOM element matching the given mmid attribute value. This will only enter the text and not press enter or anything else. Returns Success if text entry was successful or appropriate error message if text could not be entered.
 3. GOTO_URL[URL, TIMEOUT] - Opens a specified URL in the web browser instance. Returns url of the new page if successful or appropriate error message if the page could not be opened.
 4. ENTER_TEXT_AND_CLICK[TEXT_ELEMENT_MMID, TEXT_TO_ENTER, CLICK_ELEMENT_MMID, WAIT_BEFORE_CLICK_EXECUTION] - This action enters text into a specified element and clicks another element, both identified by their mmid. Ideal for seamless actions like submitting search queries, this integrated approach ensures superior performance over separate text entry and click commands. Successfully completes when both actions are executed without errors, returning True; otherwise, it provides False or an explanatory message of any failure encountered. Always prefer this dual-action skill for tasks that combine text input and element clicking to leverage its streamlined operation.
+5. AUTHENTICATE[DOMAIN] - Use this action when you need to log in to a website. The system will handle the authentication process for you.
 
  ## Planning Guidelines: ##
  1. If you know the direct URL, use it directly instead of searching for it (e.g. go to www.espn.com). Optimise the plan to avoid unnecessary steps.
