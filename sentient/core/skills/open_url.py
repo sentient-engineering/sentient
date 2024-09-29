@@ -47,7 +47,7 @@ async def openurl(
 
             # Wait for network idle to ensure page is fully loaded
             await page.wait_for_load_state(
-                "networkidle", timeout=max(30000, timeout * 1000)
+                "domcontentloaded", timeout=max(30000, timeout * 1000)
             )
 
             await browser_manager.take_screenshots(f"{function_name}_end", page)

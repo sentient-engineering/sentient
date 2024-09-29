@@ -77,39 +77,41 @@ async def enter_text_and_click(
     result = text_entry_result
 
     # if the text_selector is the same as the click_selector, press the Enter key instead of clicking
-    if text_selector == click_selector:
-        do_press_key_combination_result = await do_press_key_combination(
-            browser_manager, page, "Enter"
-        )
-        if do_press_key_combination_result:
-            result["detailed_message"] += (
-                f' Instead of click, pressed the Enter key successfully on element: "{click_selector}".'
+    try:
+        if text_selector == click_selector:
+            do_press_key_combination_result = await do_press_key_combination(
+                browser_manager, page, "Enter"
             )
-            # await browser_manager.notify_user(
-            #     f'Pressed the Enter key successfully on element: "{click_selector}".',
-            #     message_type=MessageType.ACTION,
-            # )
+            if do_press_key_combination_result:
+                result["detailed_message"] += (
+                    f' Instead of click, pressed the Enter key successfully on element: "{click_selector}".'
+                )
+                # await browser_manager.notify_user(
+                #     f'Pressed the Enter key successfully on element: "{click_selector}".',
+                #     message_type=MessageType.ACTION,
+                # )
+            else:
+                result["detailed_message"] += (
+                    f' Clicking the same element after entering text in it, is of no value. Tried pressing the Enter key on element "{click_selector}" instead of click and failed.'
+                )
+                # await browser_manager.notify_user(
+                #     'Failed to press the Enter key on element "{click_selector}".',
+                #     message_type=MessageType.ACTION,
+                # )
         else:
-            result["detailed_message"] += (
-                f' Clicking the same element after entering text in it, is of no value. Tried pressing the Enter key on element "{click_selector}" instead of click and failed.'
+            await browser_manager.highlight_element(click_selector, True)
+
+            do_click_result = await do_click(
+                page, click_selector, wait_before_click_execution
             )
-            # await browser_manager.notify_user(
-            #     'Failed to press the Enter key on element "{click_selector}".',
-            #     message_type=MessageType.ACTION,
-            # )
-    else:
-        await browser_manager.highlight_element(click_selector, True)
-
-        do_click_result = await do_click(
-            page, click_selector, wait_before_click_execution
-        )
-        result["detailed_message"] += f' {do_click_result["detailed_message"]}'
+            result["detailed_message"] += f' {do_click_result["detailed_message"]}'
+            
+        await page.wait_for_load_state("domcontentloaded") # Wait for DOM content to be loaded after the action
         # await browser_manager.notify_user(do_click_result["summary_message"])
-
-    await asyncio.sleep(
-        0.1
-    )  # sleep for 100ms to allow the mutation observer to detect changes
-
-    await browser_manager.take_screenshots(f"{function_name}_end", page)
-
-    return result["detailed_message"]
+        await asyncio.sleep(0.5)  # sleep for 1 sec to allow the mutation observer to detect changes
+        await browser_manager.take_screenshots(f"{function_name}_end", page)
+        return result["detailed_message"]
+    except Exception as e:
+        error_message = f"An error occurred during the click action: {str(e)}. This may be due to page navigation."
+        logger.error(error_message)
+        return error_message

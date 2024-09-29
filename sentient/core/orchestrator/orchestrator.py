@@ -1,6 +1,5 @@
 import asyncio
 import textwrap
-import uuid
 from typing import Dict, List
 
 from colorama import Fore, init
@@ -107,12 +106,12 @@ class Orchestrator:
             raise ValueError(f"Unhandled state! No agent for {current_state}")
         
         if current_state == State.BASE_AGENT:
-            await self._handle_agnet()
+            await self._handle_agent()
         else:
             raise ValueError(f"Unhandled state: {current_state}")
 
 
-    async def _handle_agnet(self):
+    async def _handle_agent(self):
         agent = self.state_to_agent_map[State.BASE_AGENT]
         self._print_memory_and_agent(agent.name)
 
@@ -126,14 +125,14 @@ class Orchestrator:
             current_page_url=str(url),
             current_page_dom=str(dom),
         )
-
-        output: AgentOutput = await agent.run(
-            input_data
-        )
-
-        await self._update_memory_from_agent(output)
-
-        print(f"{Fore.MAGENTA}Base Agent Q has updated the memory.")
+        
+        try:
+            output: AgentOutput = await agent.run(input_data)
+            await self._update_memory_from_agent(output)
+            print(f"{Fore.MAGENTA}Base Agent Q has updated the memory.")
+        except Exception as e:
+            print(f"{Fore.RED}Unexpected Error in Agent Execution:")
+            print(str(e))
 
 
     async def _update_memory_from_agent(self, agentq_output: AgentOutput):

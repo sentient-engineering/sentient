@@ -6,6 +6,7 @@ import instructor.patch
 import openai
 from instructor import Mode
 from langsmith import traceable
+from instructor.exceptions import InstructorRetryException
 from pydantic import BaseModel
 import google.generativeai as genai
 from groq import Groq
@@ -13,7 +14,7 @@ from anthropic import Anthropic
 
 from sentient.utils.function_utils import get_function_schema
 from sentient.utils.logger import logger
-from sentient.utils.providers import get_provider, LLMProvider
+from sentient.utils.providers import LLMProvider
 
 class BaseAgent:
     def __init__(
@@ -53,7 +54,7 @@ class BaseAgent:
         #     )
         if self.provider_name == "groq":
             self.client = Groq(**client_config)
-            self.client = instructor.from_groq(self.client, mode=Mode.TOOLS)
+            self.client = instructor.from_groq(self.client, mode=Mode.JSON)
         if self.provider_name == "anthropic":
             self.client = instructor.from_anthropic(Anthropic())
         else:
@@ -75,7 +76,13 @@ class BaseAgent:
             self.executable_functions_list[func.__name__] = func
 
     def _initialize_messages(self):
-        self.messages = [{"role": "system", "content": self.system_prompt}]
+        self.messages = [{"role": "user", "content": self.system_prompt}]
+        self.messages.append(
+                {
+                    "role": "assistant",
+                    "content": "Understood. I will properly follow the instructions given. Can you provide me with the objective and other details in JSON format?",
+                }
+            )
 
     # @traceable(run_type="chain", name="agent_run")
     async def run(
@@ -116,7 +123,7 @@ class BaseAgent:
         self.messages.append(
                 {
                     "role": "assistant",
-                    "content": f"Understood. I will properly follow the instructions given. Can you provide me with the current page DOM and URL please?",
+                    "content": "Understood. I will properly follow the instructions given. Can you provide me with the current page DOM and URL please?",
                 }
             )
         
@@ -138,13 +145,18 @@ class BaseAgent:
             # 3. add a max_turn here to prevent a inifinite fallout
             try:
                 if len(self.tools_list) == 0:
-                    response = self.client.chat.completions.create(
+                    try: 
+                        response = self.client.chat.completions.create(
                         model=self.model_name,
                         messages=self.messages,
                         response_model=self.output_format,
                         max_retries=3,
                         max_tokens=1000 if self.provider_name == "anthropic" else None,
-                    )
+                        )
+                    except InstructorRetryException as e:
+                         print(e.messages[-1]["content"])  # type: ignore
+                         print(e.n_attempts)
+                         print(e.last_completion)
                 else:
                     response = self.client.chat.completions.create(
                         model=self.model_name,
@@ -170,7 +182,7 @@ class BaseAgent:
                 # parsed_response_content: self.output_format = response_message.parsed
                 
                 assert isinstance(response, self.output_format)
-                return response
+                return response    
             except AssertionError:
                     raise TypeError(
                         f"Expected response_message to be of type {self.output_format.__name__}, but got {type(response).__name__}")
