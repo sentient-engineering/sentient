@@ -28,7 +28,6 @@ class Sentient:
             task_instructions: str = None, 
             custom_base_url: str = None
             ):
-        print("provider", provider)
         if task_instructions:
             ltm.set_task_instructions(task_instructions)
         await self._initialize(provider, model, custom_base_url)
