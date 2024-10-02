@@ -22,7 +22,8 @@ class Sentient:
 
     async def invoke(
             self, 
-            goal: str, provider: str = "openai", 
+            goal: str, 
+            provider: str = "openai", 
             model: str = "gpt-4o-2024-08-06", 
             task_instructions: str = None, 
             custom_base_url: str = None

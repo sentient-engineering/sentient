@@ -68,6 +68,13 @@ class CustomProvider(LLMProvider):
     def get_provider_name(self) -> str:
             return "custom"
     
+class OpenRouterProvider(LLMProvider): 
+    def get_client_config(self) -> Dict[str, str]:
+        pass
+    
+    def get_provider_name(self) -> Dict[str, Any]: 
+        return "openrouter"
+
 # class GoogleProvider(LLMProvider):
 #     def get_client_config(self) -> Dict[str, str]:
 #         api_key = os.environ.get("GOOGLE_API_KEY")
@@ -84,6 +91,7 @@ PROVIDER_MAP = {
     "ollama": OllamaProvider(),
     "groq": GroqProvider(),
     "anthropic": AnthropicProvider(),
+    "openrouter": OpenRouterProvider()
     # "google": GoogleProvider(),
 }
 

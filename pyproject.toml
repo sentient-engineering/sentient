@@ -29,6 +29,7 @@ groq = "^0.11.0"
 jsonref = "^1.1.0"
 eval-type-backport = "^0.2.0"
 anthropic = "^0.34.2"
+litellm = "^1.48.8"
 
 
 [build-system]

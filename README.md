@@ -156,3 +156,19 @@ result = asyncio.run(sentient.invoke(
     custom_base_url="http://localhost:8080/v1",
     model="model_name"))
 ```
+
+#### using openrouter
+
+1. set API key for open router - `export OPENROUTER_API_KEY="your-api-key"`
+
+2. we use litellm to call openrouter. so if you want to disable litellm logging - `export LITELLM_LOG="ERROR"`
+
+3. pass provider and model options to the invoke command. model name should be passed as openrouter/your-model-name
+
+```python
+#use with together ai
+result = asyncio.run(sentient.invoke(
+    goal="play shape of you on youtube",
+    provider="openrouter",
+    model="openrouter/anthropic/claude-3.5-sonnet"))
+```
