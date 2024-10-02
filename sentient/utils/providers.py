@@ -68,12 +68,12 @@ class CustomProvider(LLMProvider):
     def get_provider_name(self) -> str:
             return "custom"
     
-class LiteLLMProvider(LLMProvider): 
+class OpenRouterProvider(LLMProvider): 
     def get_client_config(self) -> Dict[str, str]:
         pass
     
     def get_provider_name(self) -> Dict[str, Any]: 
-        return "litellm"
+        return "openrouter"
 
 # class GoogleProvider(LLMProvider):
 #     def get_client_config(self) -> Dict[str, str]:
@@ -91,7 +91,7 @@ PROVIDER_MAP = {
     "ollama": OllamaProvider(),
     "groq": GroqProvider(),
     "anthropic": AnthropicProvider(),
-    "litellm": LiteLLMProvider()
+    "openrouter": OpenRouterProvider()
     # "google": GoogleProvider(),
 }
 

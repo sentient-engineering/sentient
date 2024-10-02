@@ -56,7 +56,8 @@ class BaseAgent:
             self.client = instructor.from_groq(self.client, mode=Mode.JSON)
         elif self.provider_name == "anthropic":
             self.client = instructor.from_anthropic(Anthropic())
-        elif self.provider_name == "litellm": 
+        elif self.provider_name == "openrouter": 
+            # use litellm for openrouter as instructor currently does not seem to have support for openrouter
             self.client = instructor.from_litellm(completion=completion)
         else:
             self.client = openai.Client(**client_config)
