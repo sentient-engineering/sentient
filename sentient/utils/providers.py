@@ -70,7 +70,7 @@ class CustomProvider(LLMProvider):
     
 class LiteLLMProvider(LLMProvider): 
     def get_client_config(self) -> Dict[str, str]:
-        return {}
+        pass
     
     def get_provider_name(self) -> Dict[str, Any]: 
         return "litellm"

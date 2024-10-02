@@ -56,7 +56,7 @@ class BaseAgent:
             self.client = instructor.from_groq(self.client, mode=Mode.JSON)
         elif self.provider_name == "anthropic":
             self.client = instructor.from_anthropic(Anthropic())
-        elif self.provider_name == "lite_llm": 
+        elif self.provider_name == "litellm": 
             self.client = instructor.from_litellm(completion=completion)
         else:
             self.client = openai.Client(**client_config)
