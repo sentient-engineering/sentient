@@ -68,6 +68,13 @@ class CustomProvider(LLMProvider):
     def get_provider_name(self) -> str:
             return "custom"
     
+class LiteLLMProvider(LLMProvider): 
+    def get_client_config(self) -> Dict[str, str]:
+        return {}
+    
+    def get_provider_name(self) -> Dict[str, Any]: 
+        return "litellm"
+
 # class GoogleProvider(LLMProvider):
 #     def get_client_config(self) -> Dict[str, str]:
 #         api_key = os.environ.get("GOOGLE_API_KEY")
@@ -84,6 +91,7 @@ PROVIDER_MAP = {
     "ollama": OllamaProvider(),
     "groq": GroqProvider(),
     "anthropic": AnthropicProvider(),
+    "litellm": LiteLLMProvider()
     # "google": GoogleProvider(),
 }
 
