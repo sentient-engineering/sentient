@@ -157,7 +157,7 @@ result = asyncio.run(sentient.invoke(
     model="model_name"))
 ```
 
-#### using openrouter
+#### using open-router
 
 1. set API key for open router - `export OPENROUTER_API_KEY="your-api-key"`
 
@@ -166,7 +166,7 @@ result = asyncio.run(sentient.invoke(
 3. pass provider and model options to the invoke command. model name should be passed as openrouter/your-model-name
 
 ```python
-#use with together ai
+# use with open-router
 result = asyncio.run(sentient.invoke(
     goal="play shape of you on youtube",
     provider="openrouter",
