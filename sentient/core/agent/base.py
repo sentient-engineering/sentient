@@ -53,15 +53,18 @@ class BaseAgent:
         #     )
         if self.provider_name == "groq":
             self.client = Groq(**client_config)
-            self.client = instructor.from_groq(self.client, mode=Mode.JSON)
+            self.client = instructor.from_groq(self.client, mode=Mode.TOOLS)
         elif self.provider_name == "anthropic":
             self.client = instructor.from_anthropic(Anthropic())
         elif self.provider_name == "openrouter": 
             # use litellm for openrouter as instructor currently does not seem to have support for openrouter
             self.client = instructor.from_litellm(completion=completion)
-        else:
+        elif self.provider_name == "together":
             self.client = openai.Client(**client_config)
             self.client = instructor.from_openai(self.client, mode=Mode.JSON)
+        else:
+            self.client = openai.Client(**client_config)
+            self.client = instructor.from_openai(self.client, mode=Mode.TOOLS)
         
         # Set model name
         self.model_name = model_name
@@ -146,9 +149,10 @@ class BaseAgent:
             # 2. remove the else block as JSON mode in instrutor won't allow us to pass in tools.
             # 3. add a max_turn here to prevent a inifinite fallout
             try:
+                response = None
                 if len(self.tools_list) == 0:
                     try: 
-                        response = self.client.chat.completions.create(
+                        response: self.output_format = self.client.chat.completions.create(
                         model=self.model_name,
                         messages=self.messages,
                         response_model=self.output_format,
@@ -156,9 +160,11 @@ class BaseAgent:
                         max_tokens=1000 if self.provider_name == "anthropic" else None,
                         )
                     except InstructorRetryException as e:
-                         print(e.messages[-1]["content"])  # type: ignore
-                         print(e.n_attempts)
-                         print(e.last_completion)
+                        print(f"InstructorRetryException: client - {self.provider_name} model - {self.model_name}")
+                        print(f"Error: {str(e)}")
+                        print(f"Error details: {e.__dict__}")
+                    except Exception as e:
+                        print("Error in output", e)
                 else:
                     response = self.client.chat.completions.create(
                         model=self.model_name,
@@ -167,6 +173,9 @@ class BaseAgent:
                         tool_choice="auto",
                         tools=self.tools_list,
                     )
+                
+                assert isinstance(response, self.output_format)
+                return response
 
                 # instructor directly outputs response.choices[0].message. so we will do response_message = response
                 # response_message = response.choices[0].message
@@ -183,8 +192,6 @@ class BaseAgent:
 
                 # parsed_response_content: self.output_format = response_message.parsed
                 
-                assert isinstance(response, self.output_format)
-                return response    
             except AssertionError:
                     raise TypeError(
                         f"Expected response_message to be of type {self.output_format.__name__}, but got {type(response).__name__}")

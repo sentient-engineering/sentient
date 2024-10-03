@@ -7,4 +7,4 @@ logs/
 results/
 dist/
 test.py
-test2.py
+test_instructor.py

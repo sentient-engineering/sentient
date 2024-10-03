@@ -4,6 +4,7 @@ import traceback
 from typing import Dict
 
 from playwright.async_api import ElementHandle, Page
+from playwright.async_api import TimeoutError as PlaywrightTimeoutError
 from typing_extensions import Annotated
 
 from sentient.core.web_driver.playwright import PlaywrightManager
@@ -12,7 +13,6 @@ from sentient.utils.dom_mutation_observer import (
     unsubscribe,  # type: ignore
 )
 from sentient.utils.logger import logger
-from playwright.async_api import TimeoutError as PlaywrightTimeoutError
 
 async def click(
     selector: Annotated[
@@ -39,7 +39,7 @@ async def click(
     logger.info(f'Executing ClickElement with "{selector}" as the selector')
 
     # Initialize PlaywrightManager and get the active browser page
-    browser_manager = PlaywrightManager(browser_type="chromium", headless=False)
+    browser_manager = PlaywrightManager()
     page = await browser_manager.get_current_page()
 
     if page is None:
