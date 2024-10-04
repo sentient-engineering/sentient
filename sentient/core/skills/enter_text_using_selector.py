@@ -182,10 +182,9 @@ async def entertext(
     #     f"######### About to call do_entertext with: selector={query_selector}, text={text_to_enter}"
     # )
     result = await do_entertext(page, query_selector, text_to_enter)
+    await page.wait_for_load_state("networkidle") 
     # logger.info(f"#########do_entertext returned: {result}")
-    await asyncio.sleep(
-        0.1
-    )  # sleep for 100ms to allow the mutation observer to detect changes
+    await asyncio.sleep(0.1)  # sleep for 100ms to allow the mutation observer to detect changes
     unsubscribe(detect_dom_changes)
 
     await browser_manager.take_screenshots(f"{function_name}_end", page)

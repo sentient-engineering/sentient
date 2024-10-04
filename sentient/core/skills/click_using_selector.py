@@ -166,6 +166,7 @@ async def do_click(
             }
 
         msg = await perform_javascript_click(page, selector)
+        await page.wait_for_load_state('networkidle')
         return {
             "summary_message": msg,
             "detailed_message": f"{msg} Click action completed, page may have navigated.",

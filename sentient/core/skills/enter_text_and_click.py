@@ -106,7 +106,7 @@ async def enter_text_and_click(
             )
             result["detailed_message"] += f' {do_click_result["detailed_message"]}'
             
-        await page.wait_for_load_state("domcontentloaded") # Wait for DOM content to be loaded after the action
+        await page.wait_for_load_state('networkidle') # Wait for DOM content to be loaded after the action
         # await browser_manager.notify_user(do_click_result["summary_message"])
         await asyncio.sleep(0.5)  # sleep for 1 sec to allow the mutation observer to detect changes
         await browser_manager.take_screenshots(f"{function_name}_end", page)
