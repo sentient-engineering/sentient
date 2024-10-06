@@ -235,15 +235,19 @@ async def do_entertext(
         if use_keyboard_fill:
             await elem.focus()
             await asyncio.sleep(0.1)
+            await page.wait_for_load_state("networkidle")
             await press_key_combination("Control+A")
             await asyncio.sleep(0.1)
+            await page.wait_for_load_state("networkidle")
             await press_key_combination("Backspace")
             await asyncio.sleep(0.1)
+            await page.wait_for_load_state("networkidle")
             logger.debug(f"Focused element with selector {selector} to enter text")
             # add a 100ms delay
             await page.keyboard.type(text_to_enter, delay=1)
         else:
             await custom_fill_element(page, selector, text_to_enter)
+        await page.wait_for_load_state("networkidle")
         await elem.focus()
         logger.info(
             f'Success. Text "{text_to_enter}" set successfully in the element with selector {selector}'
