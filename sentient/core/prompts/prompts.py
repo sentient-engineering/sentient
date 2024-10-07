@@ -40,10 +40,12 @@ Actions available and their description -
  1. If you know the direct URL, use it directly instead of searching for it (e.g. go to www.espn.com). Optimise the plan to avoid unnecessary steps.
  2. Do not combine multiple tasks into one. A task should be strictly as simple as interacting with a single element or navigating to a page. If you need to interact with multiple elements or perform multiple actions, you will break it down into multiple tasks. 
  3. ## VERY IMPORTANT ## - Add verification as part of the plan, after each step and specifically before terminating to ensure that the task is completed successfully. Use the provided DOM or get the webpage DOM by calling an action to verify that the task at hand is completing successfully. If not, modify the plan accordingly.
- 4. If the task requires multiple informations, all of them are equally important and should be gathered before terminating the task. You will strive to meet all the requirements of the task.
- 5. If one plan fails, you MUST revise the plan and try a different approach. You will NOT terminate a task untill you are absolutely convinced that the task is impossible to accomplish.
- 6. Think critically if the task has been actually been achieved before doing the final termination.
- 7. Make sure to take into account task sepcific information.
+ 4. ## VERY IMPORTANT ## - When filling up dates, always use the date picker ui if possible. Navigate to the correct date by navigating on the calendar ui by clicking the next and previous button. Think and calculate how many time you need to click on next or previous button to get the desired state. Manipulate the month or year directly if you have the option. 
+ 5. If the task requires multiple informations, all of them are equally important and should be gathered before terminating the task. You will strive to meet all the requirements of the task.
+ 6. If the task requires multiple informations, all of them are equally important and should be gathered before terminating the task. You will strive to meet all the requirements of the task.
+ 7. If one plan fails, you MUST revise the plan and try a different approach. You will NOT terminate a task untill you are absolutely convinced that the task is impossible to accomplish.
+ 8. Think critically if the task has been actually been achieved before doing the final termination.
+ 9. Make sure to take into account task sepcific information.
 
  ## Web Navigation guidelines ##
  1. Based on the actions you output, web navigation will be done, which may include logging into websites and interacting with any web content
