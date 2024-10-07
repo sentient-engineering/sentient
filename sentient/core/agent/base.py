@@ -6,6 +6,7 @@ import instructor.patch
 import openai
 from instructor import Mode
 from instructor.exceptions import InstructorRetryException
+from langsmith import traceable
 from pydantic import BaseModel
 from groq import Groq
 from anthropic import Anthropic
@@ -86,7 +87,7 @@ class BaseAgent:
                 }
             )
 
-    # @traceable(run_type="chain", name="agent_run")
+    @traceable(run_type="chain", name="agent_run")
     async def run(
         self, input_data: BaseModel, screenshot: str = None
     ) -> BaseModel:

@@ -18,6 +18,7 @@ from sentient.core.models.models import (
 )
 from sentient.core.skills.click_using_selector import click
 from sentient.core.skills.enter_text_using_selector import EnterTextEntry, entertext
+from sentient.core.skills.enter_date import select_date_from_datepicker
 from sentient.core.skills.get_dom_with_content_type import get_dom_with_content_type
 from sentient.core.skills.get_url import geturl
 from sentient.core.skills.open_url import openurl
@@ -71,7 +72,7 @@ class Orchestrator:
             None, input, "Enter your command (or type 'exit' to quit) "
         )
 
-    # @traceable(run_type="chain", name="execute_command")
+    @traceable(run_type="chain", name="execute_command")
     async def execute_command(self, command: str):
         try:
             # Create initial memory
@@ -176,25 +177,36 @@ class Orchestrator:
                 print("Action - TYPE")
             elif action.type == ActionType.CLICK:
                 result = await click(
-                    selector=f"[mmid='{action.mmid}']",
-                    wait_before_execution=action.wait_before_execution or 1,
+                selector=f"[mmid='{action.mmid}']",
+                wait_before_execution=action.wait_before_execution or 1,
                 )
                 print("Action - CLICK")
             elif action.type == ActionType.ENTER_TEXT_AND_CLICK:
                 result = await enter_text_and_click(
-                    text_selector=f"[mmid='{action.text_element_mmid}']",
-                    text_to_enter=action.text_to_enter,
-                    click_selector=f"[mmid='{action.click_element_mmid}']",
-                    wait_before_click_execution=action.wait_before_click_execution
-                    or 1.5,
-                )
+                text_selector=f"[mmid='{action.text_element_mmid}']",
+                text_to_enter=action.text_to_enter,
+                click_selector=f"[mmid='{action.click_element_mmid}']",
+                wait_before_click_execution=action.wait_before_click_execution
+                or 1.5,
+            )
                 print("Action - ENTER TEXT AND CLICK")
+            elif action.type == ActionType.ENTER_DATE:
+                result = await select_date_from_datepicker(
+                    date_selector=f"[mmid='{action.date_selector_mmid}']",
+                    target_date=action.target_date,
+                    next_button_selector=f"[mmid='{action.next_button_mmid}']",
+                    prev_button_selector=f"[mmid='{action.prev_button_mmid}']",
+                    month_year_selector=f"[mmid='{action.month_year_selector_mmid}']",
+                    day_selector_pattern=action.day_selector_pattern,
+                    wait_before_navigation=action.wait_before_navigation or 0.5
+                )
+                print("Action - ENTER DATE")
             else:
                 result = f"Unsupported action type: {action.type}"
-
             results.append(result)
 
         return results
+
 
     async def shutdown(self):
         print("Shutting down orchestrator!")

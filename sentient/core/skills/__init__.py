@@ -6,6 +6,7 @@ from sentient.core.skills.click_using_selector import (
     perform_playwright_click,
 )
 from sentient.core.skills.enter_text_and_click import enter_text_and_click
+from sentient.core.skills.enter_date import select_date_from_datepicker
 from sentient.core.skills.enter_text_using_selector import (
     bulk_enter_text,
     custom_fill_element,
@@ -25,6 +26,7 @@ __all__ = (
     perform_playwright_click,
     enter_text_and_click,
     bulk_enter_text,
+    select_date_from_datepicker,
     custom_fill_element,
     do_entertext,
     get_dom_with_content_type,
