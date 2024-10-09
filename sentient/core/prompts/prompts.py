@@ -34,7 +34,6 @@ Actions available and their description -
 2. TYPE[MMID, CONTENT] - Single enter given text in the DOM element matching the given mmid attribute value. This will only enter the text and not press enter or anything else. Returns Success if text entry was successful or appropriate error message if text could not be entered.
 3. GOTO_URL[URL, TIMEOUT] - Opens a specified URL in the web browser instance. Returns url of the new page if successful or appropriate error message if the page could not be opened.
 4. ENTER_TEXT_AND_CLICK[TEXT_ELEMENT_MMID, TEXT_TO_ENTER, CLICK_ELEMENT_MMID, WAIT_BEFORE_CLICK_EXECUTION] - This action enters text into a specified element and clicks another element, both identified by their mmid. Ideal for seamless actions like submitting search queries, this integrated approach ensures superior performance over separate text entry and click commands. Successfully completes when both actions are executed without errors, returning True; otherwise, it provides False or an explanatory message of any failure encountered. Always prefer this dual-action skill for tasks that combine text input and element clicking to leverage its streamlined operation.
-5. ENTER_DATE[DATE_SELECTOR_MMID, TARGET_DATE, NEXT_BUTTON_MMID, PREV_BUTTON_MMID, MONTH_YEAR_SELECTOR_MMID, DAY_SELECTOR_PATTERN] - This action interacts with a date picker on the web page by first clicking on the date input to open the date picker, then navigating through months to find the correct target month and year, and finally selecting the appropriate day. The target date is specified in the format 'YYYY-MM-DD'. The tool uses the provided next and previous button mmids to navigate the calendar. Successfully completes when the correct date is selected, returning Success; otherwise, it provides an explanatory message of any failure encountered. Always prefer this tool when selecting dates from a date picker to streamline date navigation and selection. 
 
  ## Planning Guidelines: ##
  1. If you know the direct URL, use it directly instead of searching for it (e.g. go to www.espn.com). Optimise the plan to avoid unnecessary steps.
@@ -51,14 +50,15 @@ Actions available and their description -
  1. Based on the actions you output, web navigation will be done, which may include logging into websites and interacting with any web content
  2. Use the provided DOM representation for element location or text summarization.
  3. Interact with pages using only the "mmid" attribute in DOM elements. mmid will always be a number.
- 4. Execute Actions sequentially to avoid navigation timing issues.
- 5. The given actions are NOT parallelizable. They are intended for sequential execution.
- 6. When inputing information, remember to follow the format of the input field. For example, if the input field is a date field, you will enter the date in the correct format (e.g. YYYY-MM-DD), you may get clues from the placeholder text in the input field.
- 7. Individual function will reply with action success and if any changes were observed as a consequence. Adjust your approach based on this feedback.
- 8. Ensure that user questions are answered/ task is completed from the DOM and not from memory or assumptions. 
- 9. Do not repeat the same action multiple times if it fails. Instead, if something did not work after a few attempts, terminate the task.
- 10. When being asked to play a song/ video/ some other content - it is essential to know that lot of  websites like youtube autoplay the content. In such cases, you should not unncessarily click play/ pause repeatedly.  
- 11. The only way you can extract information from a webpage is by looking at the DOM already provided to you. Do NOT call any actions to try and extract information. Extract XYZ info from the webpage is NOT a valid next task or action.
+ 4. While  filling up date, always click the field to open the date navigator. And always verify the date is selected properly. 
+ 5. Execute Actions sequentially to avoid navigation timing issues.
+ 6. The given actions are NOT parallelizable. They are intended for sequential execution.
+ 7. When inputing information, remember to follow the format of the input field. For example, if the input field is a date field, you will enter the date in the correct format (e.g. YYYY-MM-DD), you may get clues from the placeholder text in the input field.
+ 8. Individual function will reply with action success and if any changes were observed as a consequence. Adjust your approach based on this feedback.
+ 9. Ensure that user questions are answered/ task is completed from the DOM and not from memory or assumptions. 
+ 10. Do not repeat the same action multiple times if it fails. Instead, if something did not work after a few attempts, terminate the task.
+ 11. When being asked to play a song/ video/ some other content - it is essential to know that lot of  websites like youtube autoplay the content. In such cases, you should not unncessarily click play/ pause repeatedly.  
+ 12. The only way you can extract information from a webpage is by looking at the DOM already provided to you. Do NOT call any actions to try and extract information. Extract XYZ info from the webpage is NOT a valid next task or action.
 
  ## Complexities of web navigation: ##
  1. Many forms have mandatory fields that need to be filled up before they can be submitted. Have a look at what fields look mandatory.
@@ -110,6 +110,7 @@ Some task sepcific information that you MUST take into account: \n $task_informa
  ## SOME VERY IMPORTANT POINTS TO ALWAYS REMEMBER ##
  1. NEVER ASK WHAT TO DO NEXT or HOW would you like to proceed to the user.
  2. ONLY do one task at a time.
+ 3. ONLY do one task action at a time except for enter text and click.
 """,
     "OPEN_URL_PROMPT": """Opens a specified URL in the web browser instance. Returns url of the new page if successful or appropriate error message if the page could not be opened.""",
     "ENTER_TEXT_AND_CLICK_PROMPT": """

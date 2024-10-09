@@ -80,6 +80,7 @@ async def __fetch_dom_info(
         "id",
         "for",
         "data-testid",
+        "aria-haspopup",
     ]
     backup_attributes = []  # if the attributes are not found, then try to get these attributes
     tags_to_ignore = [
@@ -161,7 +162,11 @@ async def __fetch_dom_info(
 
                 // If the element is an input, include its type as well
                 if (element.tagName.toLowerCase() === 'input') {
-                    attributes_to_values['tag_type'] = element.type; // This will capture 'checkbox', 'radio', etc.
+                    attributes_to_values['tag_type'] = element.type;
+                    if (element.type === 'date') {
+                        attributes_to_values['value'] = element.value;
+                        attributes_to_values['role'] = 'datepicker';
+                    }
                 }
                 else if (element.tagName.toLowerCase() === 'select') {
                     attributes_to_values["mmid"] = element.getAttribute('mmid');
@@ -178,6 +183,52 @@ async def __fetch_dom_info(
                         attributes_to_values["options"].push(option_attributes_to_values);
                     }
                     return attributes_to_values;
+                }
+
+                let ariaHasPopup = element.getAttribute('aria-haspopup');
+                if (ariaHasPopup) {
+                    attributes_to_values['aria-haspopup'] = ariaHasPopup;
+                    if (['dialog', 'grid', 'listbox', 'menu'].includes(ariaHasPopup)) {
+                        attributes_to_values['role'] = element.getAttribute('role') || 'button';
+                    }
+                }
+
+                let elementRole = element.getAttribute('role');
+                if (elementRole) {
+                    attributes_to_values['role'] = elementRole;
+                    if (['grid', 'gridcell', 'calendar'].includes(elementRole)) {
+                        switch(elementRole) {
+                        case 'grid':
+                            attributes_to_values['additional_info'] = {
+                            rows: element.getAttribute('aria-rowcount') || element.rows?.length,
+                            columns: element.getAttribute('aria-colcount') || element.getElementsByTagName('th').length,
+                            selectedCell: element.querySelector('[aria-selected="true"]')?.getAttribute('aria-label'),
+                            sortable: element.hasAttribute('aria-sort'),
+                            filterable: element.querySelector('[aria-label*="filter"]') !== null
+                            };
+                            break;
+                        case 'gridcell':
+                            attributes_to_values['additional_info'] = {
+                            rowIndex: element.getAttribute('aria-rowindex') || element.parentElement.rowIndex,
+                            columnIndex: element.getAttribute('aria-colindex') || element.cellIndex,
+                            selected: element.getAttribute('aria-selected') === 'true',
+                            expanded: element.getAttribute('aria-expanded') === 'true'
+                            };
+                            break;
+                        case 'calendar':
+                            let selectedDate = element.querySelector('[aria-selected="true"]')?.getAttribute('aria-label');
+                            let dateRange = Array.from(element.querySelectorAll('[role="gridcell"]'))
+                            .map(cell => cell.getAttribute('aria-label'))
+                            .filter(Boolean);
+                            attributes_to_values['additional_info'] = {
+                                selectedDate: selectedDate,
+                                dateRangeStart: dateRange[0],
+                                dateRangeEnd: dateRange[dateRange.length - 1],
+                                isDateRange: element.hasAttribute('aria-multiselectable')
+                            };
+                            break;
+                        }
+                    }
                 }
 
                 for (const attribute of attributes) {
@@ -482,6 +533,7 @@ def __prune_tree(
     return None if __should_prune_node(node, only_input_fields) else node
 
 
+
 def __should_prune_node(node: Dict[str, Any], only_input_fields: bool):
     """
     Determines if a node should be pruned based on its 'role' and 'element_attributes'.
@@ -499,7 +551,8 @@ def __should_prune_node(node: Dict[str, Any], only_input_fields: bool):
         and only_input_fields
         and not (
             node.get("tag") in ("input", "button", "textarea")
-            or node.get("role") == "button"
+            or node.get("role") in ("button", "combobox", "datepicker")
+            or node.get("aria-haspopup") in ("dialog", "grid", "listbox", "menu")
         )
     ):
         return True
@@ -513,6 +566,7 @@ def __should_prune_node(node: Dict[str, Any], only_input_fields: bool):
 
     if node.get("role") in ["separator", "LineBreak"]:
         return True
+
     processed_name = ""
     if "name" in node:
         processed_name: str = node.get("name")  # type: ignore

@@ -190,17 +190,6 @@ class Orchestrator:
                 or 1.5,
             )
                 print("Action - ENTER TEXT AND CLICK")
-            elif action.type == ActionType.ENTER_DATE:
-                result = await select_date_from_datepicker(
-                    date_selector=f"[mmid='{action.date_selector_mmid}']",
-                    target_date=action.target_date,
-                    next_button_selector=f"[mmid='{action.next_button_mmid}']",
-                    prev_button_selector=f"[mmid='{action.prev_button_mmid}']",
-                    month_year_selector=f"[mmid='{action.month_year_selector_mmid}']",
-                    day_selector_pattern=action.day_selector_pattern,
-                    wait_before_navigation=action.wait_before_navigation or 0.5
-                )
-                print("Action - ENTER DATE")
             else:
                 result = f"Unsupported action type: {action.type}"
             results.append(result)

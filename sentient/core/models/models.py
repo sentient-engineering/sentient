@@ -71,38 +71,38 @@ class EnterTextAndClickAction(BaseModel):
         description="Optional wait time in seconds before executing the click event logic"
     )
 
-class EnterDateAction(BaseModel):
-    type: Literal[ActionType.ENTER_DATE] = Field(
-        description="""Interacts with a date picker to select a specific date. It clicks on the date picker input to open the calendar, navigates through months using 'Next' or 'Previous' buttons to reach the correct month and year, and selects the desired day. Successfully completes when the correct date is selected; otherwise, it returns an error message indicating the failure."""
-    )
-    date_selector_mmid: int = Field(
-        description="The mmid number of the date picker input element that opens the calendar"
-    )
-    target_date: str = Field(
-        description="The target date to be selected in the format 'YYYY-MM-DD'"
-    )
-    next_button_mmid: int = Field(
-        description="The mmid number of the 'Next Month' button in the date picker"
-    )
-    prev_button_mmid: int = Field(
-        description="The mmid number of the 'Previous Month' button in the date picker"
-    )
-    month_year_selector_mmid: int = Field(
-        description="The mmid number of the element displaying the current month and year in the date picker"
-    )
-    day_selector_pattern: str = Field(
-        description="A selector pattern with {day} placeholder to select the correct day in the calendar"
-    )
-    wait_before_navigation: Optional[float] = Field(
-        description="Optional wait time in seconds before navigating between months"
-    )
+# class EnterDateAction(BaseModel):
+#     type: Literal[ActionType.ENTER_DATE] = Field(
+#         description="""Interacts with a date picker to select a specific date. It clicks on the date picker input to open the calendar, navigates through months using 'Next' or 'Previous' buttons to reach the correct month and year, and selects the desired day. Successfully completes when the correct date is selected; otherwise, it returns an error message indicating the failure."""
+#     )
+#     date_selector_mmid: int = Field(
+#         description="The mmid number of the date picker input element that opens the calendar"
+#     )
+#     target_date: str = Field(
+#         description="The target date to be selected in the format 'YYYY-MM-DD'"
+#     )
+#     next_button_mmid: int = Field(
+#         description="The mmid number of the 'Next Month' button in the date picker"
+#     )
+#     prev_button_mmid: int = Field(
+#         description="The mmid number of the 'Previous Month' button in the date picker"
+#     )
+#     month_year_selector_mmid: int = Field(
+#         description="The mmid number of the element displaying the current month and year in the date picker"
+#     )
+#     day_selector_pattern: str = Field(
+#         description="A selector pattern with {day} placeholder to select the correct day in the calendar"
+#     )
+#     wait_before_navigation: Optional[float] = Field(
+#         description="Optional wait time in seconds before navigating between months"
+#     )
 
 Action = Union[
     ClickAction,
     TypeAction,
     GotoAction,
     EnterTextAndClickAction,
-    EnterDateAction
+    #EnterDateAction
 ]
 
 
