@@ -19,6 +19,7 @@ from sentient.core.models.models import (
 from sentient.core.skills.click_using_selector import click
 from sentient.core.skills.enter_text_using_selector import EnterTextEntry, entertext
 from sentient.core.skills.get_dom_with_content_type import get_dom_with_content_type
+from sentient.core.skills.get_screenshot import get_screenshot
 from sentient.core.skills.get_url import geturl
 from sentient.core.skills.open_url import openurl
 from sentient.core.skills.enter_text_and_click import enter_text_and_click
@@ -71,7 +72,7 @@ class Orchestrator:
             None, input, "Enter your command (or type 'exit' to quit) "
         )
 
-    # @traceable(run_type="chain", name="execute_command")
+    @traceable(run_type="chain", name="execute_command")
     async def execute_command(self, command: str):
         try:
             # Create initial memory
@@ -119,6 +120,9 @@ class Orchestrator:
         dom = await get_dom_with_content_type(content_type="all_fields")
         url = await geturl()
 
+        # get screenshot 
+        screenshot = await get_screenshot()
+
         input_data = AgentInput(
             objective=self.memory.objective,
             completed_tasks=self.memory.completed_tasks,
@@ -127,7 +131,7 @@ class Orchestrator:
         )
         
         try:
-            output: AgentOutput = await agent.run(input_data)
+            output: AgentOutput = await agent.run(input_data, screenshot)
             await self._update_memory_from_agent(output)
             print(f"{Fore.MAGENTA}Base Agent Q has updated the memory.")
         except Exception as e:

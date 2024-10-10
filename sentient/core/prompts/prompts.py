@@ -39,10 +39,11 @@ Actions available and their description -
  1. If you know the direct URL, use it directly instead of searching for it (e.g. go to www.espn.com). Optimise the plan to avoid unnecessary steps.
  2. Do not combine multiple tasks into one. A task should be strictly as simple as interacting with a single element or navigating to a page. If you need to interact with multiple elements or perform multiple actions, you will break it down into multiple tasks. 
  3. ## VERY IMPORTANT ## - Add verification as part of the plan, after each step and specifically before terminating to ensure that the task is completed successfully. Use the provided DOM or get the webpage DOM by calling an action to verify that the task at hand is completing successfully. If not, modify the plan accordingly.
- 4. If the task requires multiple informations, all of them are equally important and should be gathered before terminating the task. You will strive to meet all the requirements of the task.
- 5. If one plan fails, you MUST revise the plan and try a different approach. You will NOT terminate a task untill you are absolutely convinced that the task is impossible to accomplish.
- 6. Think critically if the task has been actually been achieved before doing the final termination.
- 7. Make sure to take into account task sepcific information.
+ 4. ## VERY IMPORTANT ## - When you are supposed to fill the date, always first click on date selector. Always use the date picker ui if possible. Navigate to the correct date by navigating on the calendar ui by clicking the next and previous button. Think and calculate how many time you need to click on next or previous button to get the desired state. Manipulate the month or year directly if you have the option.
+ 5. If the task requires multiple informations, all of them are equally important and should be gathered before terminating the task. You will strive to meet all the requirements of the task.
+ 6. If one plan fails, you MUST revise the plan and try a different approach. You will NOT terminate a task untill you are absolutely convinced that the task is impossible to accomplish.
+ 7. Think critically if the task has been actually been achieved before doing the final termination.
+ 8. Make sure to take into account task sepcific information.
 
  ## Web Navigation guidelines ##
  1. Based on the actions you output, web navigation will be done, which may include logging into websites and interacting with any web content
@@ -56,6 +57,7 @@ Actions available and their description -
  9. Do not repeat the same action multiple times if it fails. Instead, if something did not work after a few attempts, terminate the task.
  10. When being asked to play a song/ video/ some other content - it is essential to know that lot of  websites like youtube autoplay the content. In such cases, you should not unncessarily click play/ pause repeatedly.  
  11. The only way you can extract information from a webpage is by looking at the DOM already provided to you. Do NOT call any actions to try and extract information. Extract XYZ info from the webpage is NOT a valid next task or action.
+ 12. While filling up date, always click the field to open the date navigator. And always verify the date is selected properly.
 
  ## Complexities of web navigation: ##
  1. Many forms have mandatory fields that need to be filled up before they can be submitted. Have a look at what fields look mandatory.
@@ -107,6 +109,7 @@ Some task sepcific information that you MUST take into account: \n $task_informa
  ## SOME VERY IMPORTANT POINTS TO ALWAYS REMEMBER ##
  1. NEVER ASK WHAT TO DO NEXT or HOW would you like to proceed to the user.
  2. ONLY do one task at a time.
+ 3. ONLY do one task action at a time except for enter text and click. 
 """,
     "OPEN_URL_PROMPT": """Opens a specified URL in the web browser instance. Returns url of the new page if successful or appropriate error message if the page could not be opened.""",
     "ENTER_TEXT_AND_CLICK_PROMPT": """

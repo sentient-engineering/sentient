@@ -10,6 +10,7 @@ from pydantic import BaseModel
 from groq import Groq
 from anthropic import Anthropic
 from litellm import completion
+from langsmith import traceable
 
 from sentient.utils.function_utils import get_function_schema
 from sentient.utils.logger import logger
@@ -89,7 +90,7 @@ class BaseAgent:
                 }
             )
 
-    # @traceable(run_type="chain", name="agent_run")
+    @traceable(run_type="chain", name="agent_run")
     async def run(
         self, input_data: BaseModel, screenshot: str = None
     ) -> BaseModel:
