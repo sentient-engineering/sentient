@@ -1,0 +1,15 @@
+# SkyScope Sentinel Configuration
+#
+# This file contains optional configuration settings.
+# Copy this file to 'config.yaml' and fill in the values as needed.
+
+# IBM Quantum API Token (optional)
+#
+# To enable quantum planning capabilities, enter your IBM Quantum API token.
+# If you do not have a token, you can obtain one from the IBM Quantum website.
+# If left blank, the quantum tool will fall back to a simulated environment.
+#
+# Example:
+# IQP_API_TOKEN: "your_ibm_quantum_api_token_here"
+
+IQP_API_TOKEN: ""
